@@ -14,3 +14,9 @@ class ArtworkDossier(BaseModel):
     credit_line: Optional[str] = None
     image_url: str
     is_public_domain: bool
+
+
+class Artworkassessment(BaseModel):
+    flag: bool
+    reason: str
+    confidence: str
