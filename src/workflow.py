@@ -2,6 +2,9 @@ from src.met_api import fetch_object
 from src.schema import ArtworkDossier, Artworkassessment
 from langgraph.graph import StateGraph, START, END
 from pydantic import BaseModel
+from src.tools import check_medium_frequency
+
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
 from langchain_openai import ChatOpenAI
 
@@ -20,7 +23,9 @@ class ContradictionCheck(BaseModel):
     reason: str
     confidence: str
 
-model = ChatOpenAI(model= "gpt-4o-mini").with_structured_output(ContradictionCheck)
+model = ChatOpenAI(model= "gpt-4o-mini", temperature=0).with_structured_output(ContradictionCheck)
+
+model_with_tools = ChatOpenAI(model="gpt-4o-mini", temperature=0).bind_tools([check_medium_frequency])
 
 class DossierState(TypedDict):
     object_id: int
@@ -55,18 +60,29 @@ def assess_node(state: DossierState) -> dict:
         "2. department_culture_mismatch: is the department completely unrelated to the "
         "stated culture (e.g. department 'Egyptian Art' but culture 'Japan')?\n"
         "3. medium_anachronism: could the stated medium not physically have existed at "
-        "the stated date (e.g. a modern synthetic material dated to the 1500s)?\n\n"
-        "A missing artist, 'unidentified artist', a broad date range, or a plain/generic "
-        "medium name are normal cataloging and do NOT count toward any of the three checks "
-        "above. Answer each as strictly true/false based only on the specific test above."
+        "the stated date, OR is it genuinely rare for this department? If you're unsure "
+        "whether a medium is actually rare here, use the check_medium_frequency tool to "
+        "check the real count before deciding — don't guess.\n\n"
+        "A missing artist, 'unidentified artist', a broad/approximate date range "
+        "('18th century', 'circa 1700'), or a plain/generic medium name are ALL normal "
+        "cataloging and do NOT count toward any of the three checks above."
+        "If none of the three checks are true, briefly state in the reason field that no contradiction was found."
     )
-    check = model.invoke(prompt)
+
+    messages = [HumanMessage(prompt)]
+    response = model_with_tools.invoke(messages)
+    print(f"Object {state['object_id']}: tool_calls = {response.tool_calls}")
+    messages.append(response)
+
+    for tool_call in response.tool_calls:
+        result = check_medium_frequency.invoke(tool_call["args"])
+        messages.append(ToolMessage(content=str(result), tool_call_id=tool_call["id"]))
+
+    check = model.invoke(messages)
+    print(f"Object {state['object_id']}: reason = {repr(check.reason)}")
+
     flag = check.date_conflict or check.department_culture_mismatch or check.medium_anachronism
-    assessment = Artworkassessment(
-        flag=flag,
-        reason=check.reason,
-        confidence=check.confidence,
-    )
+    assessment = Artworkassessment(flag=flag, reason=check.reason, confidence=check.confidence)
     return {"assessment": assessment}
 
 
