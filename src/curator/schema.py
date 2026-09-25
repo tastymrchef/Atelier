@@ -21,3 +21,8 @@ class SelectionDraft(BaseModel):
     selected_object_ids: list[int]
     exhibit_title: str
     narrative: str
+
+class EditorVerdict(BaseModel):
+    approved: bool
+    score: int
+    issues: list[str]
