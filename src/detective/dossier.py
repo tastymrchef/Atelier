@@ -1,5 +1,5 @@
-from src.met_api import fetch_object
-from src.schema import ArtworkDossier
+from src.detective.met_api import fetch_object
+from src.detective.schema import ArtworkDossier
 
 
 class UnusableRecordError(Exception):

@@ -2,10 +2,10 @@ from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 
 from langchain_core.messages import HumanMessage, ToolMessage
-from src.tools import check_medium_frequency
+from src.detective.tools import check_medium_frequency
 
 
-from src.schema import Artworkassessment
+from src.detective.schema import Artworkassessment
 
 from typing import Optional
 

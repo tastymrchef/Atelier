@@ -1,8 +1,8 @@
 from typing import TypedDict, Optional
 
-from src.agents import date_specialist, culture_specialist, medium_specialist, correction_specialist, DateVerdict, CultureVerdict, MediumVerdict, CorrectionProposal
-from src.workflow import fetch_node, validate_node, format_node, flag_for_review_node, route_after_validate
-from src.schema import Artworkassessment, ArtworkDossier
+from src.detective.agents import date_specialist, culture_specialist, medium_specialist, correction_specialist, DateVerdict, CultureVerdict, MediumVerdict, CorrectionProposal
+from src.detective.workflow import fetch_node, validate_node, format_node, flag_for_review_node, route_after_validate
+from src.detective.schema import Artworkassessment, ArtworkDossier
 from langgraph.graph import StateGraph, END, START
 
 from langgraph.types import interrupt

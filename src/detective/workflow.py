@@ -1,8 +1,8 @@
-from src.met_api import fetch_object
-from src.schema import ArtworkDossier, Artworkassessment
+from src.detective.met_api import fetch_object
+from src.detective.schema import ArtworkDossier, Artworkassessment
 from langgraph.graph import StateGraph, START, END
 from pydantic import BaseModel
-from src.tools import check_medium_frequency
+from src.detective.tools import check_medium_frequency
 
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
@@ -13,7 +13,7 @@ import os
 
 
 from typing import TypedDict, Optional
-from src.schema import ArtworkDossier
+from src.detective.schema import ArtworkDossier
 
 
 class ContradictionCheck(BaseModel):
