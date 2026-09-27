@@ -1,6 +1,6 @@
 from typing import TypedDict, Optional
 from src.curator.schema import CuratorDossier, SelectionDraft, EditorVerdict
-from src.curator.index import search, get_metadata
+from src.shared.index import search, get_metadata
 
 import pandas as pd
 
